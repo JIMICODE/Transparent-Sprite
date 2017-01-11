@@ -55,7 +55,7 @@ bool Direct3D_Init(HWND window, int width, int height, bool fullscreen)
 	//get a point to the buffer surface
 	d3ddev->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &backbuffer);
 
-	//createsprite object
+	//create sprite object
 	D3DXCreateSprite(d3ddev, &spriteobj);
 
 	return true;
@@ -262,4 +262,32 @@ LPDIRECT3DTEXTURE9 LoadTexture(string filename, D3DCOLOR transcolor)
 	//make sure the bitmap texture wsa loaded correctly
 	if (result != D3D_OK)	return NULL;
 	return texture;
+}
+
+//sprite draw frame
+void Sprite_Draw_Frame(LPDIRECT3DTEXTURE9 texture, int destx, int desty,
+	int framenum, int framew, int frameh, int colums)
+{
+	D3DXVECTOR3 position((float)destx, (float)desty, 0);
+	D3DCOLOR white = D3DCOLOR_XRGB(255, 255, 255);
+	RECT rect;
+
+	rect.left = (framenum % colums) * framew;
+	rect.top = (framenum / colums) * frameh;
+	rect.bottom = rect.top + frameh;
+	rect.right = rect.left + framew;
+
+	spriteobj->Draw(texture, &rect, NULL, &position, white);
+}
+//Control frame delay time
+void Sprite_Animate(int &frame, int startframe, int endframe,
+	int direction, int &starttime, int delay)
+{
+	if ((int)GetTickCount() > starttime + delay)
+	{
+		starttime = GetTickCount();
+		frame += direction;
+		if (frame > endframe)	frame = startframe;
+		if (frame < startframe) frame = endframe;
+	}
 }

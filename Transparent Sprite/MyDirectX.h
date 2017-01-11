@@ -60,3 +60,8 @@ LPDIRECT3DTEXTURE9 LoadTexture(string filename, D3DCOLOR transcolor = D3DCOLOR_X
 bool Game_Init(HWND window);
 void Game_Run(HWND window);
 void Game_End();
+//sprite ainimation function
+void Sprite_Draw_Frame(LPDIRECT3DTEXTURE9 texture, int destx, int desty,
+	int framenum, int framew, int frameh, int colums);
+void Sprite_Animate(int &frame, int startframe, int endframe,
+	int direction, int &starttime, int delay);
