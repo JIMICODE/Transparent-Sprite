@@ -379,3 +379,33 @@ bool CollisionD(SPRITE sprite1, SPRITE sprite2)
 	//return distance comparison
 	return (dist < radius1 + radius2);
 }
+//Make a font instance
+LPD3DXFONT MakeFont(string name, int size)
+{
+	LPD3DXFONT font = NULL;
+	D3DXFONT_DESC desc = {
+		size,
+		0,
+		0,
+		0,
+		false,
+		DEFAULT_CHARSET,
+		OUT_TT_PRECIS,
+		CLIP_DEFAULT_PRECIS,
+		DEFAULT_PITCH,
+		""};
+
+	strcpy(desc.FaceName, name.c_str());
+	D3DXCreateFontIndirect(d3ddev, &desc, &font);
+
+	return font;
+}
+
+void FontPrint(LPD3DXFONT font, string text, int x, int y, D3DCOLOR color)
+{
+	//figure out the text boundary
+	RECT rect = { x,y,0,0};
+	font->DrawText(NULL, text.c_str(), text.length(), &rect, DT_CALCRECT, color);
+	//print the text;
+	font->DrawText(spriteobj, text.c_str(), text.length(), &rect, DT_LEFT, color);
+}
