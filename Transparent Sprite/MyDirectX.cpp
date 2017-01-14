@@ -16,6 +16,11 @@ DIMOUSESTATE mouse_state;
 char keys[256];
 XINPUT_GAMEPAD controllers[4];
 
+//Transformation math pram
+const double PI = 3.1415926535;
+const double PI_under_180 = 180.0f / PI;
+const double PI_over_180 = PI / 180.0f;
+
 //Direct3D initialization
 bool Direct3D_Init(HWND window, int width, int height, bool fullscreen)
 {
@@ -266,8 +271,10 @@ LPDIRECT3DTEXTURE9 LoadTexture(string filename, D3DCOLOR transcolor)
 
 //sprite draw frame
 void Sprite_Draw_Frame(LPDIRECT3DTEXTURE9 texture, int destx, int desty,
-	int framenum, int framew, int frameh, int colums)
+	 int framew, int frameh, int framenum, int colums)
 {
+	if (!texture)	return;
+
 	D3DXVECTOR3 position((float)destx, (float)desty, 0);
 	D3DCOLOR white = D3DCOLOR_XRGB(255, 255, 255);
 	RECT rect;
@@ -290,4 +297,37 @@ void Sprite_Animate(int &frame, int startframe, int endframe,
 		if (frame > endframe)	frame = startframe;
 		if (frame < startframe) frame = endframe;
 	}
+}
+//Sprite transform and draw
+void Sprite_Transfrom_Draw(LPDIRECT3DTEXTURE9 image, int x, int y, int width, int height,
+	int frame, int columns, float rotation, float scaling, D3DCOLOR color)
+{
+	//create a scale vector
+	D3DXVECTOR2 scale(scaling, scaling);
+	//create a translate vector
+	D3DXVECTOR2 trans(x, y);
+	//set center by dividing width and height by two
+	D3DXVECTOR2 center((float)(width * scaling) / 2, (float)(height * scaling) / 2);
+	//create 2D transformation martix
+	D3DXMATRIX mat;
+	D3DXMatrixTransformation2D(&mat, NULL, 0, &scale, &center, rotation, &trans);
+
+	//tell sprite object to use the transform
+	spriteobj->SetTransform(&mat);
+	//calculate frame location in source image
+	int fx = (frame % columns) * width;
+	int fy = (frame / columns) * height;
+	RECT srcRect = { fx, fy, fx + width, fy + height };
+	//draw the sprite frame
+	spriteobj->Draw(image, &srcRect, NULL, NULL, color);
+}
+//To radians
+double toRadians(double degrees)
+{
+	return degrees * PI_over_180;
+}
+//To degrees
+double toDegrees(double radians)
+{
+	return radians * PI_under_180;
 }

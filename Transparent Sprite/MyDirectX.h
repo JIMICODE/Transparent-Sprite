@@ -13,7 +13,7 @@
 #include<iomanip>
 #include<sstream>
 using namespace std;
-//libraries
+//Libraries
 #pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib, "gdi32.lib")
@@ -27,6 +27,10 @@ extern const string APPTITLE;
 extern const int SCREENW;
 extern const int SCREENH;
 extern bool gameover;
+//Transformation math pram
+extern const double PI;
+extern const double PI_under_180;
+extern const double PI_over_180;
 //Direct3D objects
 extern LPDIRECT3D9 d3d;
 extern LPDIRECT3DDEVICE9 d3ddev;
@@ -56,12 +60,19 @@ bool XInput_Controller_Found();
 //Direct3D texture and sprite
 D3DXVECTOR2 GetBitmapSize(string filename);
 LPDIRECT3DTEXTURE9 LoadTexture(string filename, D3DCOLOR transcolor = D3DCOLOR_XRGB(0,0,0));
-//game function
+//Game function
 bool Game_Init(HWND window);
 void Game_Run(HWND window);
 void Game_End();
-//sprite ainimation function
-void Sprite_Draw_Frame(LPDIRECT3DTEXTURE9 texture, int destx, int desty,
-	int framenum, int framew, int frameh, int colums);
+//Sprite ainimation function
+void Sprite_Draw_Frame(LPDIRECT3DTEXTURE9 texture = NULL, int destx = 0, int desty = 0,
+	 int framew = 64, int frameh = 64, int framenum = 0, int colums = 1);
 void Sprite_Animate(int &frame, int startframe, int endframe,
 	int direction, int &starttime, int delay);
+//Sprite transform
+void Sprite_Transfrom_Draw(LPDIRECT3DTEXTURE9 image, int x, int y, int width, int height, int frame = 0,
+	int columns = 1, float rotation = 0.0f, float scaling = 1.0f, D3DCOLOR color = D3DCOLOR_XRGB(255, 255, 255));
+//To radians
+double toRadians(double degrees);
+//To degrees
+double toDegrees(double radians);

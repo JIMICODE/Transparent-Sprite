@@ -1,11 +1,12 @@
 #include "MyDirectX.h"
-const string APPTITLE = "Animate Sprite Demo";
+const string APPTITLE = "Sprite Rotaion and Scaling Demo";
 const int SCREENW = 1440;
 const int SCREENH = 900;
 
-LPDIRECT3DTEXTURE9 explosion = NULL;
-int frame = 0;
-int starttime = 0;
+LPDIRECT3DTEXTURE9 sunflower = NULL;
+int frame = 0, columns, width, height;
+int startframe, ebdframe, starttime = 0, delay;
+D3DCOLOR color;
 
 bool Game_Init(HWND window)
 {
@@ -21,15 +22,17 @@ bool Game_Init(HWND window)
 		MessageBox(0, "Error initializing DirectInput", "Error", NULL);
 		return false;
 	}
-	//load explosion sprite
-	explosion = LoadTexture("explosion_30_128.tga");
-	if (!explosion)	return false;
+	//load the sprite image
+	sunflower = LoadTexture("sunflower.bmp");
 
 	return true;
 }
 
 void Game_Run(HWND window)
 {
+	static float scale = 0.001f;
+	static float r = 0;
+	static float s = 1.0f;
 	//make sure the Direct3D device is vaild
 	if (!d3ddev)	return;
 	//update input devices
@@ -42,9 +45,15 @@ void Game_Run(HWND window)
 	{
 		//start drawing
 		spriteobj->Begin(D3DXSPRITE_ALPHABLEND);
-		//animate and draw the sprite
-		Sprite_Animate(frame, 0, 29, 1, starttime, 30);
-		Sprite_Draw_Frame(explosion, 200, 200, frame, 128, 128, 6);
+		//set rotaion and scaling
+		r = timeGetTime() / 600.f;
+		s += scale;
+		//draw sprite
+		width = height = 512;
+		frame = 0;
+		columns = 1;
+		color = D3DCOLOR_XRGB(255, 255, 255);
+		Sprite_Transfrom_Draw(sunflower, 300, 150, width, height, frame, columns, r, s, color);
 		//stop rendering
 		spriteobj->End();
 
@@ -64,5 +73,4 @@ void Game_End()
 {
 	DirectInput_Shutdown();
 	Direct3D_ShutDown();
-	explosion->Release();
 }
