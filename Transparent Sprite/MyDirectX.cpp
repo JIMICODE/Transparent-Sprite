@@ -331,3 +331,21 @@ double toDegrees(double radians)
 {
 	return radians * PI_under_180;
 }
+
+int Collision(SPRITE sprite1, SPRITE sprite2)
+{
+	RECT rect1;
+	rect1.left = (long)sprite1.x;
+	rect1.top = (long)sprite1.y;
+	rect1.right = (long)sprite1.x + sprite1.width * sprite1.scaling;
+	rect1.bottom = (long)sprite1.y + sprite1.height * sprite1.scaling;
+
+	RECT rect2;
+	rect2.left = (long)sprite2.x;
+	rect2.top = (long)sprite2.y;
+	rect2.right = (long)sprite2.x + sprite2.width * sprite2.scaling;
+	rect2.bottom = (long)sprite2.y + sprite2.height * sprite2.scaling;
+
+	RECT dest;//ignored
+	return IntersectRect(&dest, &rect1, &rect2);
+}

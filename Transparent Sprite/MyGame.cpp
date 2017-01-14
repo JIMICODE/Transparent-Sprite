@@ -1,15 +1,11 @@
 #include "MyDirectX.h"
-const string APPTITLE = "Sprite Rotation and Animation Demo";
+const string APPTITLE = "Bounding box Demo";
 const int SCREENW = 1440;
 const int SCREENH = 900;
 
-LPDIRECT3DTEXTURE9 paladin = NULL;
-float scale = 0.004f;
-float r = 0.0f;
-float s = 1.0f;
-int frame = 0, columns, width, height;
-int startframe, endframe, starttime = 0, delay;
-D3DCOLOR color = D3DCOLOR_XRGB(255,255,255);
+SPRITE ship, asteroid1, asteroid2;
+LPDIRECT3DTEXTURE9 imgShip = NULL;
+LPDIRECT3DTEXTURE9 imgAsteroid = NULL;
 
 bool Game_Init(HWND window)
 {
@@ -25,13 +21,34 @@ bool Game_Init(HWND window)
 		MessageBox(0, "Error initializing DirectInput", "Error", NULL);
 		return false;
 	}
-	//load the sprite image
-	paladin = LoadTexture("paladin_walk.png");
-	if (!paladin)
-	{
-		MessageBox(window, "Error loading sprite", "Fuck!!!", NULL);
-		return false;
-	}
+	//load the sprite textures
+	imgShip = LoadTexture("fatship.tga");
+	if (!imgShip)	return false;
+	imgAsteroid = LoadTexture("asteroid.tga");
+	if (!imgAsteroid)	return false;
+
+	//set properties for sprites
+	ship.x = 450;
+	ship.y = 300;
+	ship.width = ship.height = 128;
+
+	asteroid1.x = 50;
+	asteroid1.y = 200;
+	asteroid1.width = asteroid1.height = 60;
+	asteroid1.columns = 8;
+	asteroid1.startframe = 0;
+	asteroid1.endframe = 63;
+	asteroid1.velx = -2.0f;
+	asteroid1.delay = 20;
+
+	asteroid2.x = 900;
+	asteroid2.y = 500;
+	asteroid2.width = asteroid2.height = 60;
+	asteroid2.columns = 8;
+	asteroid2.startframe = 0;
+	asteroid2.endframe = 63;
+	asteroid2.velx = 2.0f;
+	asteroid2.delay = 20;
 
 	return true;
 }
@@ -45,22 +62,46 @@ void Game_Run(HWND window)
 
 	//clear the backbuffer
 	d3ddev->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 255, 255), 1.0f, 0);
+	//move the ship up/down with arrow keys
+	if (Key_Down(DIK_UP))
+	{
+		ship.y -= 1.0f;
+		if (ship.y < 0) ship.y = 0;
+	}
+	if (Key_Down(DIK_DOWN))
+	{
+		ship.y += 1.0f;
+		if (ship.y > SCREENH - ship.height)	ship.y = SCREENH - ship.height;
+	}
+	//move and animate the asteroids
+	asteroid1.x += asteroid1.velx;
+	if (asteroid1.x < 0 || asteroid1.x > SCREENW - asteroid1.width)
+		asteroid1.velx *= -1;
+	Sprite_Animate(asteroid1.frame, asteroid1.startframe, asteroid1.endframe,
+		asteroid1.direction, asteroid1.starttime, asteroid1.delay);
+
+	asteroid2.x += asteroid2.velx;
+	if (asteroid2.x < 0 || asteroid2.x > SCREENW - asteroid2.width)
+		asteroid2.velx *= -1;
+	Sprite_Animate(asteroid2.frame, asteroid2.startframe, asteroid2.endframe,
+		asteroid2.direction, asteroid2.starttime, asteroid2.delay);
+
+	//test for collisions
+	if (Collision(ship, asteroid1))
+		asteroid1.velx *= -1;
+	if (Collision(ship, asteroid2))
+		asteroid2.velx *= -1;
 	//start rendering
 	if (d3ddev->BeginScene())
 	{
 		//start drawing
 		spriteobj->Begin(D3DXSPRITE_ALPHABLEND);
-		//set scaling
-		s += scale;
-		if (s < 0.5f || s > 6.0f)	scale *= -1;
-		//draw sprite`
-		width = height = 96;
-		columns = 8;
-		startframe = 24;
-		endframe = 31;
-		delay = 90;
-		Sprite_Animate(frame, startframe, endframe, 1, starttime, delay);
-		Sprite_Transfrom_Draw(paladin, 300, 200, width, height, frame, columns, 0, s, color);
+		Sprite_Transfrom_Draw(imgShip, ship.x, ship.y, ship.width, ship.height,
+			ship.frame, ship.columns);
+		Sprite_Transfrom_Draw(imgAsteroid, asteroid1.x, asteroid1.y, asteroid1.width, asteroid1.height,
+			asteroid1.frame, asteroid1.columns);
+		Sprite_Transfrom_Draw(imgAsteroid, asteroid2.x, asteroid2.y, asteroid2.width, asteroid2.height,
+		asteroid2.frame, asteroid2.columns);
 		//stop rendering
 		spriteobj->End();
 
@@ -78,6 +119,8 @@ void Game_Run(HWND window)
 
 void Game_End()
 {
+	if (imgShip)	imgShip->Release();
+	if (imgAsteroid)	imgAsteroid->Release();
 	DirectInput_Shutdown();
 	Direct3D_ShutDown();
 }

@@ -31,6 +31,33 @@ extern bool gameover;
 extern const double PI;
 extern const double PI_under_180;
 extern const double PI_over_180;
+//Sprite structure
+struct SPRITE
+{
+	float x, y;
+	int frame, columns;
+	int width, height;
+	float scaling, rotation;
+	int startframe, endframe;
+	int starttime, delay;
+	int direction;
+	float velx, vely;
+	D3DCOLOR color;
+	//construct
+	SPRITE()
+	{
+		frame = 0;
+		columns = 1;
+		width = height = 0;
+		scaling = 1.0f;
+		rotation = 0.0f;
+		startframe = endframe = 0;
+		direction = 1;
+		starttime = delay = 0;
+		velx = vely = 0.0f;
+		color = D3DCOLOR_XRGB(25, 255, 255);
+	}
+};
 //Direct3D objects
 extern LPDIRECT3D9 d3d;
 extern LPDIRECT3DDEVICE9 d3ddev;
@@ -76,3 +103,5 @@ void Sprite_Transfrom_Draw(LPDIRECT3DTEXTURE9 image, int x, int y, int width, in
 double toRadians(double degrees);
 //To degrees
 double toDegrees(double radians);
+//Bounding box collision detection
+int Collision(SPRITE sprite1, SPRITE sprite2);
