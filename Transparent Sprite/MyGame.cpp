@@ -1,12 +1,15 @@
 #include "MyDirectX.h"
-const string APPTITLE = "Sprite Rotaion and Scaling Demo";
+const string APPTITLE = "Sprite Rotation and Animation Demo";
 const int SCREENW = 1440;
 const int SCREENH = 900;
 
-LPDIRECT3DTEXTURE9 sunflower = NULL;
+LPDIRECT3DTEXTURE9 paladin = NULL;
+float scale = 0.004f;
+float r = 0.0f;
+float s = 1.0f;
 int frame = 0, columns, width, height;
-int startframe, ebdframe, starttime = 0, delay;
-D3DCOLOR color;
+int startframe, endframe, starttime = 0, delay;
+D3DCOLOR color = D3DCOLOR_XRGB(255,255,255);
 
 bool Game_Init(HWND window)
 {
@@ -23,16 +26,18 @@ bool Game_Init(HWND window)
 		return false;
 	}
 	//load the sprite image
-	sunflower = LoadTexture("sunflower.bmp");
+	paladin = LoadTexture("paladin_walk.png");
+	if (!paladin)
+	{
+		MessageBox(window, "Error loading sprite", "Fuck!!!", NULL);
+		return false;
+	}
 
 	return true;
 }
 
 void Game_Run(HWND window)
 {
-	static float scale = 0.001f;
-	static float r = 0;
-	static float s = 1.0f;
 	//make sure the Direct3D device is vaild
 	if (!d3ddev)	return;
 	//update input devices
@@ -45,15 +50,17 @@ void Game_Run(HWND window)
 	{
 		//start drawing
 		spriteobj->Begin(D3DXSPRITE_ALPHABLEND);
-		//set rotaion and scaling
-		r = timeGetTime() / 600.f;
+		//set scaling
 		s += scale;
-		//draw sprite
-		width = height = 512;
-		frame = 0;
-		columns = 1;
-		color = D3DCOLOR_XRGB(255, 255, 255);
-		Sprite_Transfrom_Draw(sunflower, 300, 150, width, height, frame, columns, r, s, color);
+		if (s < 0.5f || s > 6.0f)	scale *= -1;
+		//draw sprite`
+		width = height = 96;
+		columns = 8;
+		startframe = 24;
+		endframe = 31;
+		delay = 90;
+		Sprite_Animate(frame, startframe, endframe, 1, starttime, delay);
+		Sprite_Transfrom_Draw(paladin, 300, 200, width, height, frame, columns, 0, s, color);
 		//stop rendering
 		spriteobj->End();
 
