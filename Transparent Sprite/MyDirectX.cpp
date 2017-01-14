@@ -349,3 +349,33 @@ int Collision(SPRITE sprite1, SPRITE sprite2)
 	RECT dest;//ignored
 	return IntersectRect(&dest, &rect1, &rect2);
 }
+//Test collision by distance
+bool CollisionD(SPRITE sprite1, SPRITE sprite2)
+{
+	double radius1, radius2;
+	//calculate radius1
+	if (sprite1.width > sprite1.height)
+		radius1 = (sprite1.width * sprite1.scaling) / 2.0f;
+	else
+		radius1 = (sprite1.height * sprite1.scaling) / 2.0f;
+	//center point 1
+	double x1 = sprite1.x + radius1;
+	double y1 = sprite1.y + radius1;
+
+	//calculate radius 2
+	if (sprite2.width > sprite2.height)
+		radius2 = (sprite2.width * sprite2.scaling) / 2.0f;
+	else
+		radius2 = (sprite2.height * sprite2.scaling) / 2.0f;
+
+	//center point 2
+	double x2 = radius2 + sprite2.x;
+	double y2 = radius2 + sprite2.y;
+
+	//calculate distance
+	double deltax = x1 - x2;
+	double deltay = y1 - y2;
+	double dist = sqrt((deltax*deltax) + (deltay*deltay));
+	//return distance comparison
+	return (dist < radius1 + radius2);
+}

@@ -105,3 +105,5 @@ double toRadians(double degrees);
 double toDegrees(double radians);
 //Bounding box collision detection
 int Collision(SPRITE sprite1, SPRITE sprite2);
+//Test collision by distance
+bool CollisionD(SPRITE sprite1, SPRITE sprite2);
