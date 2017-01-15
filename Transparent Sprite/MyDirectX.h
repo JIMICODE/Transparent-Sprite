@@ -109,4 +109,4 @@ int Collision(SPRITE sprite1, SPRITE sprite2);
 bool CollisionD(SPRITE sprite1, SPRITE sprite2);
 //Font fuctions
 LPD3DXFONT MakeFont(string name, int size);
-void FontPrint(LPD3DXFONT font, string text, int x = 0, int bottom = 0, D3DCOLOR color = D3DCOLOR_XRGB(255, 255, 255));
+void FontPrint(LPD3DXFONT font, string text, int x = 0, int y = 0, D3DCOLOR color = D3DCOLOR_XRGB(255, 255, 255));
