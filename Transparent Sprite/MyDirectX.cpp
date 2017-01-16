@@ -431,7 +431,7 @@ bool DirectSound_Init(HWND hwnd)
 	return true;
 }
 //Delete dsound
-void DIrectSound_Shutdown()
+void DirectSound_Shutdown()
 {
 	if (dsound)	delete dsound;
 }

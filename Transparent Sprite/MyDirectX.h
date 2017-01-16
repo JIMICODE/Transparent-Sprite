@@ -117,7 +117,7 @@ LPD3DXFONT MakeFont(string name, int size);
 void FontPrint(LPD3DXFONT font, string text, int x = 0, int y = 0, D3DCOLOR color = D3DCOLOR_XRGB(255, 255, 255));
 //functions prototypes
 bool DirectSound_Init(HWND hwnd);
-void DIrectSound_Shutdown();
+void DirectSound_Shutdown();
 CSound* LoadSound(string filename);
 void MPlaySound(CSound *sound);
 void MLoopSound(CSound *sound);
