@@ -1,4 +1,5 @@
 #include "MyDirectX.h"
+#include "DirectSound.h"
 #include<iostream>
 
 using namespace std;
@@ -20,6 +21,9 @@ XINPUT_GAMEPAD controllers[4];
 const double PI = 3.1415926535;
 const double PI_under_180 = 180.0f / PI;
 const double PI_over_180 = PI / 180.0f;
+
+//Primary DirectSound object
+CSoundManager *dsound = NULL;
 
 //Direct3D initialization
 bool Direct3D_Init(HWND window, int width, int height, bool fullscreen)
@@ -408,4 +412,55 @@ void FontPrint(LPD3DXFONT font, string text, int x, int y, D3DCOLOR color)
 	font->DrawText(NULL, text.c_str(), text.length(), &rect, DT_CALCRECT, color);
 	//print the text;
 	font->DrawText(spriteobj, text.c_str(), text.length(), &rect, DT_LEFT, color);
+}
+
+//Initialize dsound
+bool DirectSound_Init(HWND hwnd)
+{
+	//create DirectSound manager object
+	dsound = new CSoundManager();
+	//initialize DirectSound
+	HRESULT result;
+	result = dsound->Initialize(hwnd, DSSCL_PRIORITY);
+	if (result != DS_OK)	return false;
+
+	//set the primary buffer format
+	result = dsound->SetPrimaryBufferFormat(2, 22050, 16);
+	if (result != DS_OK)	return false;
+	//return success
+	return true;
+}
+//Delete dsound
+void DIrectSound_Shutdown()
+{
+	if (dsound)	delete dsound;
+}
+//Load sound file
+CSound * LoadSound(string filename)
+{
+	HRESULT result;
+	//create local reference to wave data
+	CSound *wave = NULL;
+	//attempt to load the wave file
+	char s[255];
+	sprintf(s, "%s", filename.c_str());
+	result = dsound->Create(&wave, s);
+	if (result != DS_OK)	wave = NULL;
+	//return the wave
+	return wave;
+}
+//Play sound
+void MPlaySound(CSound * sound)
+{
+	sound->Play();
+}
+
+void MLoopSound(CSound * sound)
+{
+	sound->Play(0, DSBPLAY_LOOPING);
+}
+
+void MStopSound(CSound * sound)
+{
+	sound->Stop();
 }

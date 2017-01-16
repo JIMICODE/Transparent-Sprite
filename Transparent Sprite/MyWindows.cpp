@@ -2,6 +2,8 @@
 using namespace std;
 
 bool gameover = false;
+//For old D3DX lib
+int (WINAPIV * __vsnprintf)(char *, size_t, const char*, va_list) = _vsnprintf;
 
 //Windows event handler
 LRESULT WINAPI WinProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)

@@ -141,11 +141,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DirectSound.cpp" />
     <ClCompile Include="MyDirectX.cpp" />
     <ClCompile Include="MyGame.cpp" />
     <ClCompile Include="MyWindows.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DirectSound.h" />
     <ClInclude Include="MyDirectX.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

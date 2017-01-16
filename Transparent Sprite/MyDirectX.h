@@ -12,6 +12,7 @@
 #include<iostream>
 #include<iomanip>
 #include<sstream>
+#include "DirectSound.h"
 using namespace std;
 //Libraries
 #pragma comment(lib, "winmm.lib")
@@ -22,6 +23,8 @@ using namespace std;
 #pragma comment(lib, "d3dx9.lib")
 #pragma comment(lib, "dinput8.lib")
 #pragma comment(lib, "xinput.lib")
+#pragma comment(lib, "dsound.lib")
+#pragma comment(lib, "dxerr.lib")
 //Program values
 extern const string APPTITLE;
 extern const int SCREENW;
@@ -63,6 +66,8 @@ extern LPDIRECT3D9 d3d;
 extern LPDIRECT3DDEVICE9 d3ddev;
 extern LPDIRECT3DSURFACE9 backbuffer;
 extern LPD3DXSPRITE spriteobj;
+//Primary DirectSound object
+extern CSoundManager *dsound;
 //DIrect3D functions
 bool Direct3D_Init(HWND hwnd, int width, int height, bool fullscreen);
 void Direct3D_ShutDown();
@@ -110,3 +115,10 @@ bool CollisionD(SPRITE sprite1, SPRITE sprite2);
 //Font fuctions
 LPD3DXFONT MakeFont(string name, int size);
 void FontPrint(LPD3DXFONT font, string text, int x = 0, int y = 0, D3DCOLOR color = D3DCOLOR_XRGB(255, 255, 255));
+//functions prototypes
+bool DirectSound_Init(HWND hwnd);
+void DIrectSound_Shutdown();
+CSound* LoadSound(string filename);
+void MPlaySound(CSound *sound);
+void MLoopSound(CSound *sound);
+void MStopSound(CSound *sound);
