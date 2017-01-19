@@ -464,3 +464,182 @@ void MStopSound(CSound * sound)
 {
 	sound->Stop();
 }
+
+void DrawModel(MODEL * model)
+{
+	//any materials in this mesh?
+	if (model->material_count == 0)
+	{
+		model->mesh->DrawSubset(0);
+	}
+	else
+	{
+		//draw each mesh subset
+		for (DWORD i = 0; i < model->material_count; ++i)
+		{
+			//Set the material and texture for this subset
+			d3ddev->SetMaterial(&model->materials[i]);
+			if (model->textures[i])
+			{
+				if (model->textures[i]->GetType() == D3DRTYPE_TEXTURE)
+				{
+					D3DSURFACE_DESC desc;
+					model->textures[i]->GetLevelDesc(0, &desc);
+					if (desc.Width > 0)
+					{
+						d3ddev->SetTexture(0, model->textures[i]);
+					}
+				}
+			}
+			//Draw the mesh subset
+			model->mesh->DrawSubset(i);
+		}	
+	}
+}
+
+void DeleteModel(MODEL * model)
+{
+	//remove materials from memory
+	if (model->materials != NULL)
+	{
+		delete[] model->materials;
+	}
+	//remove texture from memory
+	if (model->textures != NULL)
+	{
+		for (DWORD i = 0; i < model->material_count; ++i)
+		{
+			if (model->textures[i] != NULL)
+				model->textures[i]->Release();
+		}
+		delete[] model->textures;
+	}
+	//remove mesh from memory
+	if (model->mesh != NULL)
+		model->mesh->Release();
+	//remove model from memory
+	if (model != NULL)
+		free(model);
+}
+
+MODEL * LoadModel(string filename)
+{
+	MODEL *model = (MODEL*)malloc(sizeof(MODEL));
+	LPD3DXBUFFER matBuffer;
+	HRESULT result;
+	//load mesh from the specified file
+	result = D3DXLoadMeshFromX(
+		filename.c_str(),
+		D3DXMESH_SYSTEMMEM,
+		d3ddev,
+		NULL,
+		&matBuffer,
+		NULL,
+		&model->material_count,
+		&model->mesh
+	);
+
+	if (result != D3D_OK)
+	{
+		MessageBox(NULL, "Error loading model file", "Fuck!!!", NULL);
+		return NULL;
+	}
+	//extract msterisl properties and texture names from material buffer
+	LPD3DXMATERIAL d3dxMaterials = (LPD3DXMATERIAL)matBuffer->GetBufferPointer();
+	model->materials = new D3DMATERIAL9[model->material_count];
+	model->textures = new LPDIRECT3DTEXTURE9[model->material_count];
+	//create the materials and texture
+	for (DWORD i = 0; i < model->material_count; ++i)
+	{
+		//grab the material
+		model->materials[i] = d3dxMaterials[i].MatD3D;
+		//set ambient color for material
+		model->materials[i].Ambient = model->materials[i].Diffuse;
+		model->textures[i] = NULL;
+		if (d3dxMaterials[i].pTextureFilename != NULL)
+		{
+			string filename = d3dxMaterials[i].pTextureFilename;
+			if (FindFile(&filename))
+			{
+				result = D3DXCreateTextureFromFile(
+					d3ddev, filename.c_str(), &model->textures[i]);
+				if (result != D3D_OK)
+				{
+					MessageBox(0, "Could not find texture", "Fuck!!!", NULL);
+					return false;
+				}
+			}
+		}
+	}
+	//done using material buffer
+	matBuffer->Release();
+	return model;
+}
+
+bool FindFile(string * filename)
+{
+	if (!filename)	return false;
+	//look for file using original filename and path
+	if (DoesFileExist(*filename))	return true;
+	//since the file was not found, try removing the path
+	string pathOnly;
+	string filenameOnly;
+	SplitPath(*filename, &pathOnly, &filenameOnly);
+	//is file found in current folder, wothout the path
+	if (DoesFileExist(filenameOnly))
+	{
+		*filename = filenameOnly;
+		return true;
+	}
+	//not found 
+	return false;
+}
+
+bool DoesFileExist(const string & filename)
+{
+	return (_access(filename.c_str(), 0) != -1);
+}
+
+void SplitPath(const string & inputPath, string * pathOnly, string * filenameOnly)
+{
+	string fullPath(inputPath);
+	replace(fullPath.begin(), fullPath.end(), '\\', '/');
+	string::size_type lastSlashPos = fullPath.find_last_of("/");
+	//check for there being no path element in the input
+	if (lastSlashPos == string::npos)
+	{
+		*pathOnly = "";
+		*filenameOnly = fullPath;
+	}
+	else
+	{
+		if (pathOnly)
+		{
+			*pathOnly = fullPath.substr(0, lastSlashPos);
+		}
+		if (filenameOnly)
+		{
+			*filenameOnly = fullPath.substr(lastSlashPos + 1,
+				fullPath.size() - lastSlashPos - 1);
+		}
+	}
+}
+
+void SetCamera(float posx, float posy, float posz, float lookx, float looky, float lookz)
+{
+	float fov = D3DX_PI / 4.0;
+	float aspectRatio = SCREENW / SCREENH;
+	float nearRange = 1.0;
+	float farRange = 2000.0;
+	D3DXVECTOR3 updir = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
+	D3DXVECTOR3 position = D3DXVECTOR3(posx, posy, posz);
+	D3DXVECTOR3 target = D3DXVECTOR3(lookx, looky, lookz);
+	//set the perspective
+	D3DXMATRIX matProj;
+	D3DXMatrixPerspectiveFovLH(&matProj, fov, aspectRatio, nearRange, farRange);
+	d3ddev->SetTransform(D3DTS_PROJECTION, &matProj);
+	//set up the camera view matrix
+	D3DXMATRIX matView;
+	D3DXMatrixLookAtLH(&matView, &position, &target, &updir);
+	d3ddev->SetTransform(D3DTS_VIEW, &matView);
+}

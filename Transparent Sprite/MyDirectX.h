@@ -12,6 +12,8 @@
 #include<iostream>
 #include<iomanip>
 #include<sstream>
+#include<io.h>
+#include<algorithm>
 #include "DirectSound.h"
 //Namespcae
 using namespace std;
@@ -60,6 +62,28 @@ struct SPRITE
 		starttime = delay = 0;
 		velx = vely = 0.0f;
 		color = D3DCOLOR_XRGB(25, 255, 255);
+	}
+};
+//Define the MODEL struct
+struct MODEL
+{
+	LPD3DXMESH mesh;
+	D3DMATERIAL9* materials;
+	LPDIRECT3DTEXTURE9* textures;
+	DWORD material_count;
+	D3DXVECTOR3 translate;
+	D3DXVECTOR3 rotate;
+	D3DXVECTOR3 scale;
+
+	MODEL()
+	{
+		material_count = 0;
+		mesh = NULL;
+		materials = NULL;
+		textures = NULL;
+		translate = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		rotate = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		scale = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
 	}
 };
 //Direct3D objects
@@ -123,3 +147,12 @@ CSound* LoadSound(string filename);
 void MPlaySound(CSound *sound);
 void MLoopSound(CSound *sound);
 void MStopSound(CSound *sound);
+//3D mesh functions prototypes
+void DrawModel(MODEL *model);
+void DeleteModel(MODEL* model);
+MODEL *LoadModel(string filename);
+bool FindFile(string* filename);
+bool DoesFileExist(const string& filename);
+void SplitPath(const string& inputPath, string* pathOnly, string* filenameOnly);
+void SetCamera(float posx, float posy, float posz,
+	float lookx = 0.0f, float looky = 0.0f, float lookz = 0.0f);
